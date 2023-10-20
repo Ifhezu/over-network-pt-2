@@ -54,35 +54,29 @@ export default async function RootLayout({
     @param form - FormData object containing the username and name of the new user
   */
   const setUpProfile = async (form: FormData) => {
-    /*
-      TODO #1: Indicate that this function is a server function by adding 'use server';
-    */
+    // TODO #1: Indicate that this function is a server function by adding 'use server';
+    use server;
 
-    /*
-      TODO #2: Create the new User object with a username, name, and privateKey
-    
-      HINT: 
-        - 
-        - Use the newPrivateKey() function to generate a new private key for the user
-    */
+    // TODO #2: Create the new User object with a username, name, and privateKey
+    const privateKey = newPrivateKey();
+    const user = {
+      username: form.get('username') as string,
+      name: form.get('name') as string,
+      privateKey,
+    };
 
-    /* 
-      TODO #3: Store the user in the local account cache
+    // TODO #3: Store the user in the local account cache
+    storeUser(user);
 
-      HINT: Use the storeUser() function to store the user
-    */
-
-    /* 
-      TODO #4: Set up a try catch block to create the user's profile and log them in if successful.
-
-      HINT: 
-        - Use the createProfile() and login() functions to create the user's 
-          profile and log them in
-        
-        - In the catch block, use the dropUser() function to remove the user 
-          from the local account cache. Then, throw the error to be caught by the catch block in
-          the loginWindow.tsx file.
-    */
+    try {
+      // TODO #4: Set up a try catch block to create the user's profile and log them in if successful.
+      await createProfile(user);
+      await login(user);
+    } catch (error) {
+      // In case of an error, remove the user from the local account cache and throw the error
+      dropUser(user);
+      throw error;
+    }
   }
 
   if (!me) {
@@ -95,6 +89,7 @@ export default async function RootLayout({
             <div className='w-full max-w-xs space-y-6 rounded-xl border border-neutral-300 bg-neutral-400 px-6 py-4'>
               <p className='text-2xl font-bold'>Log in to Over Network</p>
               {
+                // Check if the maximum number of accounts has been reached
                 await getNumberOfUsers() >= 2 ? 
                 <p className='text-sm font-medium text-neutral-100'>
                   You have reached the maximum number of accounts.
@@ -127,17 +122,28 @@ export default async function RootLayout({
                   {me.name}
                 </p>
                 <p className='text-neutral-100'>@{me.username}</p>
-              </div>
-            </div>
-            <button
-              type='submit'
-              className='rounded bg-blue-500 py-2.5 text-sm font-medium hover:bg-blue-400'
-            >
-              Log out
-            </button>
-          </form>
+              </Apologies for the incomplete response. Here's the continuation of the code:
+
+```jsx
+div>
         </div>
-      </body>
-    </html>
-  );
+        <button
+          type='submit'
+          className='rounded bg-blue-500py-2.5 text-sm font-medium hover:bg-blue-400'
+        >
+          Log out
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
+);
 }
+
+RootLayout.getLayout = function getLayout(page) {
+  return (
+    <RootLayout>
+      {page}
+    </RootLayout>
+  );
+};
